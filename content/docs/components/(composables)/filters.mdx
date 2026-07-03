@@ -1,0 +1,343 @@
+---
+title: Filters
+description: A filter bar of segmented pills with per-field operators and value controls
+type: composable
+builtOn: ["button-group", "combobox", "dropdown-menu", "input"]
+---
+
+import { Filters } from "@/registry/default/filters/filters";
+import FiltersBasic from "@/registry/examples/filters/filters-basic";
+import FiltersControlled from "@/registry/examples/filters/filters-controlled";
+import FiltersFieldTypes from "@/registry/examples/filters/filters-field-types";
+import FiltersOperators from "@/registry/examples/filters/filters-operators";
+import FiltersMultiselect from "@/registry/examples/filters/filters-multiselect";
+import FiltersManual from "@/registry/examples/filters/filters-manual";
+import FiltersSizes from "@/registry/examples/filters/filters-sizes";
+import FiltersAffixes from "@/registry/examples/filters/filters-affixes";
+import FiltersShortcut from "@/registry/examples/filters/filters-shortcut";
+import FiltersNuqs from "@/registry/examples/filters/filters-nuqs";
+
+The filter bar shows active filters as segmented pills, each pairing a field, an operator, and a value, plus an "Add filter" button that opens a searchable field picker. Use it for list and table views where users refine results by several conditions at once, the pattern you see in Linear, Notion, and Stripe.
+
+For a single dropdown of options tied to a form field, use [`Combobox`](/docs/components/combobox) instead.
+
+## Preview
+
+<ComponentPreview component="filters" example="filters-basic">
+  <FiltersBasic />
+</ComponentPreview>
+
+## Installation
+
+<ComponentInstall component="filters" />
+
+## Usage
+
+<ComponentUsage component="filters" />
+
+## Composition
+
+```text
+Filters                 (FiltersProvider + FiltersBar)
+└── FiltersBar
+    ├── FilterChips
+    │   └── FilterChip
+    │       ├── FilterChipField
+    │       ├── FilterChipOperator
+    │       ├── FilterChipValue
+    │       └── FilterChipRemove
+    ├── FilterAddButton
+    ├── FilterActiveCount
+    └── FilterClearButton
+```
+
+Drive the bar with a `fields` config and a `value` array of active filters. Each field's `type` picks the value control and its default operators. Without `children`, the bar renders `FilterChips`, `FilterAddButton`, and a `FilterClearButton` once filters exist; pass `children` to compose the same parts in any order.
+
+```tsx
+const fields: FilterField[] = [
+  {
+    id: "status",
+    label: "Status",
+    type: "select",
+    options: [
+      { value: "todo", label: "Todo" },
+      { value: "done", label: "Done" },
+    ],
+  },
+  { id: "title", label: "Title", type: "text" },
+];
+
+const [value, setValue] = React.useState<FilterValue[]>([]);
+
+return <Filters fields={fields} value={value} onValueChange={setValue} />;
+```
+
+## Features
+
+- Per-type operators with sensible defaults (`is`, `contains`, `between`, `is empty`), overridable or hideable per field.
+- Operators declare a value `shape` (`"none"` / `"scalar"` / `"range"`), so custom operators get the right control automatically; `is empty` drops the value segment, and any `"range"` operator gets paired min/max inputs.
+- Adding a filter opens its value picker (or focuses its input) right away, so you pick in one gesture.
+- Colored dots or icons on options keep a dense bar scannable; fields accept an optional `icon` too.
+- `prefix` / `suffix` on text and number fields for currency, units, or symbols; `maxSelections` caps a multiselect.
+- Number fields are spinner-free (Base UI) with arrow-key stepping and wheel scrubbing (scroll to adjust while focused).
+- An optional `shortcut` key opens the add-filter menu, with a `Kbd` hint on the button.
+- Controlled and uncontrolled: pass `value` + `onValueChange`, or `defaultValue`. Because it is controlled, syncing to the URL (nuqs) is trivial.
+- The `custom` field type renders any control through `renderValue`, for dates, sliders, or bespoke inputs.
+- Searchable, keyboard-navigable field and value pickers, inherited from `Combobox`.
+
+## Examples
+
+### Controlled
+
+Pass `value` and `onValueChange` to own the state; the serialized filters update as you edit. This example also composes a `FilterActiveCount` badge into the bar.
+
+<ComponentPreview component="filters" example="filters-controlled">
+  <FiltersControlled />
+</ComponentPreview>
+
+### Field types
+
+Use `type` to pick the value control. `select` and `multiselect` open a searchable list, `text` and `number` render inline inputs, and `custom` renders your own control through `renderValue`.
+
+| Type            | Value control                              | Value shape                     |
+| --------------- | ------------------------------------------ | ------------------------------- |
+| `"select"`      | Searchable single-select list.             | `string \| null`                |
+| `"multiselect"` | Searchable multi-select list.              | `string[]`                      |
+| `"text"`        | Inline text input.                         | `string`                        |
+| `"number"`      | Inline number input, paired for `between`. | `number \| null \| NumberRange` |
+| `"custom"`      | Your control via `renderValue`.            | `unknown`                       |
+
+<ComponentPreview component="filters" example="filters-field-types">
+  <FiltersFieldTypes />
+</ComponentPreview>
+
+### Prefix and suffix
+
+Add a `prefix` or `suffix` to text and number fields for currency, units, or symbols. The value input stays inline; the affix sits alongside it.
+
+<ComponentPreview component="filters" example="filters-affixes">
+  <FiltersAffixes />
+</ComponentPreview>
+
+### Operators
+
+Use `operators` to replace the default set for a field, or `disabledOperators` to remove specific ones. Each operator declares a `shape`: `"none"` hides the value segment (`valueless: true` is sugar for it), `"range"` renders paired min/max inputs on number fields, and `"scalar"` (the default) renders the field's normal control.
+
+<ComponentPreview component="filters" example="filters-operators">
+  <FiltersOperators />
+</ComponentPreview>
+
+### Multiselect
+
+A `multiselect` field collapses its selection to the first label plus a count. Set `maxSelections` to cap how many options can be picked; the rest disable once the cap is hit.
+
+<ComponentPreview component="filters" example="filters-multiselect">
+  <FiltersMultiselect />
+</ComponentPreview>
+
+### Manual layout
+
+Pass `children` to lay the bar out yourself with `FilterChips`, `FilterAddButton`, `FilterActiveCount`, and `FilterClearButton`, which read the shared state from context.
+
+<ComponentPreview component="filters" example="filters-manual">
+  <FiltersManual />
+</ComponentPreview>
+
+### Sizes
+
+Use `size` to set the height of every pill in the bar.
+
+<ComponentPreview component="filters" example="filters-sizes">
+  <FiltersSizes />
+</ComponentPreview>
+
+### Keyboard shortcut
+
+Set `shortcut` to a key (here `"f"`) to open the add-filter menu from the keyboard; a `Kbd` hint appears on the button. The key is ignored while typing or while a popup is open.
+
+<ComponentPreview component="filters" example="filters-shortcut">
+  <FiltersShortcut />
+</ComponentPreview>
+
+### URL state with nuqs
+
+Because `Filters` is controlled, syncing to the query string is just wiring `value` / `onValueChange` to a state hook. This uses [`nuqs`](https://nuqs.dev) to persist the filters in `?filters=`. Mount `NuqsAdapter` once at your app root.
+
+<ComponentPreview component="filters" example="filters-nuqs">
+  <FiltersNuqs />
+</ComponentPreview>
+
+### State outside the bar
+
+`Filters` is `FiltersProvider` + `FiltersBar` composed. Use them separately when UI outside the flex row (a results count, saved views, an apply button) should read or mutate the same state through `useFilters`.
+
+```tsx
+<FiltersProvider fields={fields} value={value} onValueChange={setValue}>
+  <PageHeader>
+    <FilterSummary /> {/* reads useFilters() */}
+  </PageHeader>
+  <FiltersBar />
+  <ResultsCount />
+</FiltersProvider>
+```
+
+## Accessibility
+
+The field picker and value lists are `Combobox` instances, so type-to-search, arrow-key navigation, and selection follow the ARIA combobox pattern. The operator menu is a `DropdownMenu` radio group. Each pill is a group labeled with its full filter (for example, "Status is In progress"), and every segment is self-describing: the operator trigger is named "[field] operator: [operator]", value triggers and inputs are named "[field] value: ..." (including string affixes), and the remove control is "Remove [field] filter". Pressing `Backspace` or `Delete` on one of a pill's button segments removes the filter, and focus moves to the neighboring pill (or the add button) instead of dropping to the page.
+
+The Backspace removal and focus rescue rely on the `data-slot` attributes (`filter-chip`, `filter-chip-remove`, `filter-add`); custom chip children should preserve those slots to keep the keyboard behavior.
+
+## API Reference
+
+Filters is a custom component composed from Cubby UI primitives. It has no Base UI root of its own; the value and field pickers are [`Combobox`](/docs/components/combobox) and the operator menu is [`DropdownMenu`](/docs/components/dropdown-menu).
+
+### Props
+
+#### Filters
+
+`FiltersProvider` + `FiltersBar` composed, for the common case. All props below except `shortcut` belong to the provider; `shortcut` and div props flow to the bar.
+
+<ApiPropsList>
+
+<ApiProp name="fields" fullType="FilterField[]">
+  Field definitions the bar can filter on. Each field's `type` determines its
+  value control and default operators.
+</ApiProp>
+
+<ApiProp name="value" fullType="FilterValue[]">
+  Controlled list of active filters. Pair with `onValueChange`.
+</ApiProp>
+
+<ApiProp name="defaultValue" fullType="FilterValue[]" defaultValue="[]">
+  Initial filters in uncontrolled mode. Seed entries with `createFilter` so each
+  has a stable id.
+</ApiProp>
+
+<ApiProp name="onValueChange" fullType="(value: FilterValue[]) => void">
+  Called whenever a filter is added, edited, or removed.
+</ApiProp>
+
+<ApiProp
+  name="size"
+  fullType='"sm" | "default" | "lg"'
+  defaultValue='"default"'
+>
+  Height of every pill and the add-filter button.
+</ApiProp>
+
+<ApiProp name="allowDuplicateFields" fullType="boolean" defaultValue="false">
+  Allows the same field to be added more than once. When `false`, used fields
+  are disabled in the picker.
+</ApiProp>
+
+<ApiProp name="shortcut" fullType="string">
+  Key that opens the add-filter menu, forwarded to the default
+  `FilterAddButton`. Ignored while typing or while a popup is open; shows a
+  `Kbd` hint on the button.
+</ApiProp>
+
+<ApiProp name="labels" fullType="Partial<FiltersLabels>">
+  Overrides for the bar's copy: `add`, `clear`, `searchFields`, `searchValues`,
+  `noFields`, `noResults`, `selectValue`, `enterValue`, `value`, `min`, `max`,
+  `operator`, and `removeFilter` (a function building the remove button's
+  accessible label). Inline objects with string labels are fine (the memo
+  compares values, not identity); hoist the object only if you override
+  `removeFilter`, since an inline arrow is a new function every render.
+</ApiProp>
+
+</ApiPropsList>
+
+#### FiltersProvider
+
+Owns filter state and provides it via context without rendering layout. Takes the state props from `Filters` (`fields`, `value`, `defaultValue`, `onValueChange`, `size`, `allowDuplicateFields`, `labels`) plus `children`.
+
+#### FiltersBar
+
+The flex row. Renders the default layout (`FilterChips`, `FilterAddButton`, `FilterClearButton`) unless `children` is passed. Takes `shortcut` and div props.
+
+#### FilterClearButton
+
+Clears every filter. Renders nothing while no filters are active, so compositions don't need to wrap it in a conditional.
+
+#### FilterChips
+
+Renders a `FilterChip` for every active filter, in order. Use it in `children` mode to place the chip list among your own chrome.
+
+#### FilterChip
+
+A single pill. Without `children` it renders the field, operator, value, and remove segments; pass `children` to compose the segments yourself.
+
+<ApiPropsList>
+
+<ApiProp name="filter" fullType="FilterValue">
+  The active filter this pill represents.
+</ApiProp>
+
+<ApiProp name="field" fullType="FilterField">
+  The field definition. Resolved from the `Filters` context by `filter.field`
+  when omitted.
+</ApiProp>
+
+</ApiPropsList>
+
+#### FilterAddButton
+
+The searchable field picker. Renders the dashed trigger and the popup.
+
+<ApiPropsList>
+
+<ApiProp name="shortcut" fullType="string">
+  Key that opens this menu from the keyboard (e.g. `"f"`). Adds a `Kbd` hint to
+  the trigger.
+</ApiProp>
+
+</ApiPropsList>
+
+### Hooks
+
+`useFilters()` exposes the bar's state and actions (`filters`, `fieldsById`, `addFilter`, `updateFilter`, `removeFilter`, `clearAll`) to anything rendered inside a `FiltersProvider`. It re-renders on every filter edit; performance-sensitive leaves can subscribe to `useFiltersState()` (just `filters`) or `useFiltersActions()` (config and actions, stable while a value is being typed) instead. `useFilterChip()` exposes the current pill's `filter`, `field`, and `size` inside a `FilterChip`.
+
+State merging uses [useControllableState](/docs/hooks/use-controllable-state), installed as a shared hook.
+
+### Types
+
+#### FilterField
+
+A discriminated union keyed on `type`. Every variant has `id`, `label`, and optional `icon`, `operators`, and `disabledOperators`. `select` and `multiselect` add `options` (`multiselect` also takes `maxSelections`); `text` and `number` take `prefix` / `suffix`; `custom` adds `renderValue` and optional `defaultValue`.
+
+#### FilterValue
+
+```ts
+interface FilterValue {
+  id: string;
+  field: string;
+  operator: string;
+  value: unknown;
+}
+```
+
+### Helpers
+
+#### createFilter
+
+Creates a `FilterValue` with a stable id, the field's first operator, and a typed empty value. Pass a partial to override any of them.
+
+```ts
+createFilter(statusField, { value: "in_progress" });
+```
+
+#### patchFilter
+
+Applies a partial update to a filter, reseeding the value when an operator change alters the value shape (e.g. `eq` to `between`).
+
+#### asFilterValues
+
+Coerces unknown JSON (e.g. a parsed URL param) into a `FilterValue[]`, dropping entries with a malformed envelope. Pair it with the controlled API when restoring filters from untrusted sources; see the nuqs example.
+
+#### formatFilterValue / describeFilter
+
+`formatFilterValue` renders a filter's value as a human-readable string; `describeFilter` prepends the field and operator ("Status is In progress"). The pill's `aria-label` uses `describeFilter`, so custom UIs can stay consistent with it.
+
+#### resolveOperators
+
+Returns the operators available for a field, applying `operators` and `disabledOperators`.
