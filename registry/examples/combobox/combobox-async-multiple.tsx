@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "@/lib/utils";
 import {
   Combobox,
   ComboboxChipInput,
@@ -30,23 +31,14 @@ export default function ComboboxAsyncMultiple() {
   });
 
   function getStatus() {
-    if (isPending) {
-      return (
-        <>
-          <HugeiconsIcon
-            icon={Loading03Icon}
-            className="size-4 animate-spin"
-            strokeWidth={2}
-          />
-          Searching...
-        </>
-      );
-    }
     if (error) return error;
+    // Loading now lives at the trailing edge of the chips row; only surface text
+    // here when there are no stale results to show, so the popup is never blank.
+    if (isPending && items.length === 0) return "Searching...";
     if (query === "") {
       return value.length === 0 ? "Start typing to search employees..." : null;
     }
-    if (items.length === 0) {
+    if (!isPending && items.length === 0) {
       return `No matches for "${query}".`;
     }
     return null;
@@ -87,7 +79,20 @@ export default function ComboboxAsyncMultiple() {
                 ))}
                 <ComboboxChipInput
                   placeholder={selectedEmployees.length > 0 ? "" : "e.g. Sarah"}
+                  aria-busy={isPending}
                 />
+                {isPending && (
+                  <span
+                    aria-hidden="true"
+                    className="text-muted-foreground flex shrink-0 items-center self-center ps-1 pe-0.5"
+                  >
+                    <HugeiconsIcon
+                      icon={Loading03Icon}
+                      className="size-4 animate-spin"
+                      strokeWidth={2}
+                    />
+                  </span>
+                )}
               </>
             )}
           </ComboboxValue>
@@ -95,11 +100,16 @@ export default function ComboboxAsyncMultiple() {
       </div>
 
       <ComboboxPopup>
-        <ComboboxStatus className="flex items-center gap-2">
-          {getStatus()}
-        </ComboboxStatus>
+        <ComboboxStatus>{getStatus()}</ComboboxStatus>
         <ComboboxEmpty>{getEmptyMessage()}</ComboboxEmpty>
-        <ComboboxList>
+        {/* Dim stale results while the next query resolves. Gate on items so the
+            first search (no prior results) doesn't fade in from dim. */}
+        <ComboboxList
+          className={cn(
+            "transition-opacity duration-150",
+            isPending && items.length > 0 && "opacity-50",
+          )}
+        >
           {(employee: Employee) => (
             <ComboboxItem key={employee.id} value={employee}>
               <div className="flex flex-col gap-0.5">

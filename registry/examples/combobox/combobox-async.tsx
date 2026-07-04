@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "@/lib/utils";
 import {
   Combobox,
   ComboboxInput,
@@ -25,23 +26,14 @@ export default function ComboboxAsync() {
   });
 
   function getStatus() {
-    if (isPending) {
-      return (
-        <>
-          <HugeiconsIcon
-            icon={Loading03Icon}
-            className="size-4 animate-spin"
-            strokeWidth={2}
-          />
-          Searching...
-        </>
-      );
-    }
     if (error) return error;
+    // Loading now lives in the input's end slot; only surface text here when
+    // there are no stale results to show, so the popup is never blank.
+    if (isPending && items.length === 0) return "Searching...";
     if (query === "") {
       return value ? null : "Start typing to search employees...";
     }
-    if (items.length === 0) {
+    if (!isPending && items.length === 0) {
       return `No matches for "${query}".`;
     }
     return null;
@@ -64,14 +56,31 @@ export default function ComboboxAsync() {
     >
       <div className="flex w-full max-w-xs flex-col gap-1">
         <ComboboxLabel>Search employees</ComboboxLabel>
-        <ComboboxInput placeholder="e.g. Sarah" />
+        <ComboboxInput
+          placeholder="e.g. Sarah"
+          aria-busy={isPending}
+          end={
+            isPending ? (
+              <HugeiconsIcon
+                icon={Loading03Icon}
+                className="animate-spin"
+                strokeWidth={2}
+              />
+            ) : null
+          }
+        />
       </div>
       <ComboboxPopup>
-        <ComboboxStatus className="flex items-center gap-2">
-          {getStatus()}
-        </ComboboxStatus>
+        <ComboboxStatus>{getStatus()}</ComboboxStatus>
         <ComboboxEmpty>{getEmptyMessage()}</ComboboxEmpty>
-        <ComboboxList>
+        {/* Dim stale results while the next query resolves. Gate on items so the
+            first search (no prior results) doesn't fade in from dim. */}
+        <ComboboxList
+          className={cn(
+            "transition-opacity duration-150",
+            isPending && items.length > 0 && "opacity-50",
+          )}
+        >
           {(employee: Employee) => (
             <ComboboxItem key={employee.id} value={employee}>
               <div className="flex flex-col gap-0.5">
