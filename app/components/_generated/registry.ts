@@ -3930,7 +3930,7 @@ export const exampleRegistry = {
     {
       "title": "With Text",
       "importPath": "toggle-with-text",
-      "source": "import { Toggle } from \"@/components/ui/cubby-ui/toggle\";\nimport { HugeiconsIcon } from \"@hugeicons/react\";\nimport { TextBoldIcon } from \"@hugeicons/core-free-icons\";\nexport default function ToggleWithText() {\n  return (\n    <Toggle>\n      <HugeiconsIcon icon={TextBoldIcon} className=\"h-4 w-4 mr-2\"  strokeWidth={2} />\n      Bold\n    </Toggle>\n  );\n}"
+      "source": "import { Toggle } from \"@/components/ui/cubby-ui/toggle\";\nimport { HugeiconsIcon } from \"@hugeicons/react\";\nimport { TextBoldIcon } from \"@hugeicons/core-free-icons\";\nexport default function ToggleWithText() {\n  return (\n    <Toggle>\n      <HugeiconsIcon icon={TextBoldIcon} className=\"h-4 w-4\" strokeWidth={2} />\n      Bold\n    </Toggle>\n  );\n}"
     }
   ],
   "toggle-group": [

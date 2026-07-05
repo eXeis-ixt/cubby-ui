@@ -155,7 +155,9 @@
       "Bash(node .agents/skills/impeccable/scripts/context.mjs)",
       "Bash(echo \"===EXIT: $?===\")",
       "Bash(npx tsc *)",
-      "Bash(pnpm run *)"
+      "Bash(pnpm run *)",
+      "Bash(find \"C:\\\\Users\\\\jonny\\\\.claude\\\\skills\\\\building-components\" -maxdepth 2 -name \"*.md\")",
+      "Bash(find . -path ./node_modules -prune -o -name \"globals.css\" -print)"
     ],
     "deny": []
   }
