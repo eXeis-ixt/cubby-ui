@@ -17,7 +17,7 @@ const toggleVariants = cva(
       variant: {
         default: "",
         outline:
-          "border bg-card bg-clip-padding shadow-xs hover:not-data-pressed:bg-(--outline-hover) data-pressed:border-transparent data-pressed:shadow-none",
+          "border bg-card bg-clip-padding hover:not-data-pressed:bg-(--outline-hover) data-pressed:border-transparent",
       },
       size: {
         sm: "h-9 min-w-9 gap-1.5 px-2 sm:h-8 sm:min-w-8",
