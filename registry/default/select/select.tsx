@@ -73,10 +73,16 @@ const selectTriggerVariants = cva(
         // Translucent overlay for Cards, Dialogs, etc. --surface-hover (alpha
         // overlay) preserves translucency on any substrate depth.
         elevated: "bg-input-elevated hover:bg-surface-hover",
+        // Chromeless — mirrors the button's ghost variant for use in toolbars
+        // and inline next to ghost buttons. Chevron follows the text on hover.
+        ghost:
+          "border-transparent bg-transparent text-muted-foreground hover:bg-surface-hover hover:text-foreground group-hover/select-trigger:[&_svg:not([class*='text-'])]:text-foreground",
       },
       size: {
         default: "h-10 px-3 py-2 sm:h-9",
-        sm: "h-9 px-2.5 py-1.5 sm:h-8",
+        // px-2 matches the button's sm size so ghost triggers align optically
+        // with adjacent ghost buttons.
+        sm: "h-9 px-2 py-1.5 sm:h-8",
       },
     },
     defaultVariants: {

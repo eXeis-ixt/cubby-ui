@@ -1,0 +1,13 @@
+overrides:
+  "@types/react": 19.2.7
+  "@types/react-dom": 19.2.3
+
+# pnpm 11 replaced onlyBuiltDependencies / ignoredBuiltDependencies with allowBuilds.
+# true  = allow the package to run install/build scripts
+# false = block its scripts (reviewed, so no ERR_PNPM_IGNORED_BUILDS)
+allowBuilds:
+  esbuild: true
+  "@tailwindcss/oxide": true
+  unrs-resolver: true
+  sharp: false
+  msw: false
