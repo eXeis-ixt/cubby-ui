@@ -159,16 +159,71 @@ For the standard combobox pattern (input outside popup), use `ComboboxLabel` whi
 
 #### ComboboxPopup
 
-Dropdown container for the option list with positioning. Composes Base UI's `Combobox.Positioner` and `Combobox.Popup`. Props are forwarded to `Combobox.Popup`.
+Dropdown container for the option list with positioning. Composes Base UI's `Combobox.Positioner` and `Combobox.Popup`. Positioning props (`side`, `align`, `sideOffset`, and so on) are forwarded to the Positioner; remaining props are forwarded to `Combobox.Popup`.
 
 <ApiPropsList>
+
+<ApiProp
+  name="side"
+  fullType="'top' | 'right' | 'bottom' | 'left' | 'inline-start' | 'inline-end'"
+  defaultValue='"bottom"'
+>
+  Which side of the anchor to position the popup. Forwarded to the internal Positioner. Inherits Base UI's default.
+</ApiProp>
+
+<ApiProp
+  name="align"
+  fullType="'start' | 'center' | 'end'"
+  defaultValue='"center"'
+>
+  How to align the popup relative to the anchor. Forwarded to the internal Positioner. Inherits Base UI's default.
+</ApiProp>
 
 <ApiProp
   name="sideOffset"
   fullType="number"
   defaultValue="6"
 >
-  Distance in pixels between the popup and the anchor element. Convenience prop that passes through to the internal Positioner component. Type is inferred from Base UI's Positioner component.
+  Distance in pixels between the popup and the anchor element. Forwarded to the internal Positioner. Type is inferred from Base UI's Positioner component.
+</ApiProp>
+
+<ApiProp
+  name="alignOffset"
+  fullType="number"
+  defaultValue="0"
+>
+  Offset in pixels along the alignment axis. Forwarded to the internal Positioner. Inherits Base UI's default.
+</ApiProp>
+
+<ApiProp
+  name="collisionBoundary"
+  fullType="Element | Element[] | 'clipping-ancestors'"
+>
+  Boundary used for collision detection. Forwarded to the internal Positioner. Inherits Base UI's default.
+</ApiProp>
+
+<ApiProp
+  name="collisionPadding"
+  fullType="number | Partial<Record<Side, number>>"
+  defaultValue="5"
+>
+  Padding from the collision boundary edge. Forwarded to the internal Positioner. Inherits Base UI's default.
+</ApiProp>
+
+<ApiProp
+  name="sticky"
+  fullType="boolean"
+  defaultValue="false"
+>
+  Whether to keep the popup visible in the viewport after the anchor has scrolled out of view. Forwarded to the internal Positioner. Inherits Base UI's default.
+</ApiProp>
+
+<ApiProp
+  name="positionMethod"
+  fullType="'absolute' | 'fixed'"
+  defaultValue='"absolute"'
+>
+  CSS position method for the popup. Forwarded to the internal Positioner. Inherits Base UI's default.
 </ApiProp>
 
 <ApiProp

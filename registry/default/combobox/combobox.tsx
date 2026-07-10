@@ -561,13 +561,29 @@ function ComboboxChipRemove({
 function ComboboxPopup({
   className,
   children,
+  side,
+  align,
   sideOffset = 6,
+  alignOffset,
+  collisionBoundary,
+  collisionPadding,
+  sticky,
+  positionMethod,
   backdrop = false,
   level,
   shadowLevel,
   ...props
 }: BaseCombobox.Popup.Props & {
-  sideOffset?: number;
+  /** Which side of the anchor to align against. Defaults to Base UI's "bottom". */
+  side?: BaseCombobox.Positioner.Props["side"];
+  /** Alignment of the popup relative to its anchor. Defaults to Base UI's "center". */
+  align?: BaseCombobox.Positioner.Props["align"];
+  sideOffset?: BaseCombobox.Positioner.Props["sideOffset"];
+  alignOffset?: BaseCombobox.Positioner.Props["alignOffset"];
+  collisionBoundary?: BaseCombobox.Positioner.Props["collisionBoundary"];
+  collisionPadding?: BaseCombobox.Positioner.Props["collisionPadding"];
+  sticky?: BaseCombobox.Positioner.Props["sticky"];
+  positionMethod?: BaseCombobox.Positioner.Props["positionMethod"];
   backdrop?: boolean;
   /** Surface elevation level for the popup bg (1-8). Defaults to 3. */
   level?: SurfaceLevel;
@@ -588,7 +604,14 @@ function ComboboxPopup({
        */}
       <ComboboxPositioner
         anchor={context?.chipsElement ?? undefined}
+        side={side}
+        align={align}
         sideOffset={sideOffset}
+        alignOffset={alignOffset}
+        collisionBoundary={collisionBoundary}
+        collisionPadding={collisionPadding}
+        sticky={sticky}
+        positionMethod={positionMethod}
       >
         <ComboboxPopupPrimitive
           className={className}
