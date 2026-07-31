@@ -37,6 +37,7 @@ Use `variant` to change the button's visual weight and color.
 | `neutral`          | A solid neutral action with no brand color.             |
 | `secondary`        | The standard lower-emphasis action.                     |
 | `outline`          | A bordered action for secondary actions.                |
+| `outline-ghost`    | A bordered, transparent action for elevated surfaces.   |
 | `ghost`            | A borderless action for toolbars and dense UI.          |
 | `link`             | Renders as inline text, like a link.                    |
 | `destructive`      | A destructive action such as delete.                    |
@@ -50,15 +51,51 @@ Use `size` to set the button's height and padding.
 
 ### With Icons
 
-Use `leftSection` and `rightSection` to place an icon beside the label.
+Use `leadingIcon` and `trailingIcon` (renamed from `leftSection` and
+`rightSection`) to place an icon beside the label. The button automatically
+tightens the padding on the icon side, since an icon is visually lighter than
+a text edge.
 
 <ComponentPreview component="button" example="button-with-icons" />
+
+### Loading
+
+Use `loading` to show a spinner while an action is in flight. The label stays
+mounted but invisible, so the button keeps its size and nothing shifts around
+it.
+
+<ComponentPreview component="button" example="button-loading" />
 
 ### As Link
 
 Use the `render` prop to render as a Next.js Link, and set `nativeButton` to `false`.
 
 <ComponentPreview component="button" example="button-with-link" />
+
+### Custom Colors
+
+The button paints its background from three CSS variables, one per interaction
+state: `--btn-bg` (rest), `--btn-bg-hover`, and `--btn-bg-active`. Each variant
+sets them and the button switches between them internally, so recoloring a
+button one-off is just overriding the variables, with no `hover:` or `active:`
+prefixes needed. Override the variables instead of `bg-*` classes: root-level
+`bg-*` paints behind the fill layer, so it is hidden by opaque variants and
+blended by transparent ones, which is rarely what you want:
+
+```tsx showLineNumbers
+<Button className="[--btn-bg:var(--color-violet-600)] [--btn-bg-hover:var(--color-violet-700)] [--btn-bg-active:var(--color-violet-800)]">
+  Custom
+</Button>
+```
+
+Any variable you don't override keeps the variant's color for that state, so
+set all three for a full recolor. The border color is `--btn-border`; note that
+the `destructive` variant sets its dark-mode border with a `dark:` class, so
+overriding it there takes both `[--btn-border:...]` and `dark:[--btn-border:...]`.
+
+The same layering applies to border style and width: the border lives on the
+button's paint pseudo-element, so use `before:` classes to restyle it, for
+example `before:border-dashed` or `before:border-2`.
 
 ## Accessibility
 
@@ -95,7 +132,7 @@ Clickable element that triggers actions. Wraps Base UI's `Button`.
 
 <ApiProp
   name="variant"
-  fullType='"primary" | "primary-soft" | "neutral" | "secondary" | "outline" | "ghost" | "link" | "destructive" | "destructive-soft"'
+  fullType='"primary" | "primary-soft" | "neutral" | "secondary" | "outline" | "outline-ghost" | "ghost" | "link" | "destructive" | "destructive-soft"'
   simpleType="string"
   defaultValue='"primary"'
 >
@@ -116,12 +153,12 @@ Clickable element that triggers actions. Wraps Base UI's `Button`.
   Display loading state with spinner. Automatically disables the button and sets `focusableWhenDisabled` to `true` for keyboard accessibility.
 </ApiProp>
 
-<ApiProp name="leftSection" fullType="ReactNode" simpleType="node">
-  Content (typically icon) to display before the button text. Custom prop not available in Base UI.
+<ApiProp name="leadingIcon" fullType="ReactNode" simpleType="node">
+  Icon to display before the button text. Padding on the leading edge tightens automatically. Custom prop not available in Base UI.
 </ApiProp>
 
-<ApiProp name="rightSection" fullType="ReactNode" simpleType="node">
-  Content (typically icon) to display after the button text. Custom prop not available in Base UI.
+<ApiProp name="trailingIcon" fullType="ReactNode" simpleType="node">
+  Icon to display after the button text. Padding on the trailing edge tightens automatically. Custom prop not available in Base UI.
 </ApiProp>
 
 </ApiPropsList>
