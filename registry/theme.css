@@ -214,7 +214,11 @@
      Derived, so it tracks whatever --primary the consumer sets. */
   --primary-soft-foreground: color-mix(in oklch, var(--primary), white 30%);
   /* Same treatment for destructive-soft's label on its tinted plate. */
-  --destructive-soft-foreground: color-mix(in oklch, var(--destructive), white 30%);
+  --destructive-soft-foreground: color-mix(
+    in oklch,
+    var(--destructive),
+    white 30%
+  );
 
   /* Dark-mode hover colors — same per-token logic as :root above. Most
      tokens brighten (mix toward white), but --neutral is near-white in dark

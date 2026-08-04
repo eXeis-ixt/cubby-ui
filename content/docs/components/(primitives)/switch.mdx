@@ -28,16 +28,81 @@ Wrap the switch in a `Label` to make a whole card row toggle the control.
 
 <ComponentPreview component="switch" example="switch-card" />
 
-### Pill Shape
+### Color
 
-Use `shape` to set the thumb's aspect ratio and travel distance.
+Use `color` to set the checked track. The unchecked track is a translucent overlay and does not change.
 
-<ComponentPreview component="switch" example="switch-pill" />
+<ComponentPreview component="switch" example="switch-color" />
 
-| Shape    | Description                                  |
-| -------- | -------------------------------------------- |
-| `circle` | The default, a round thumb.                  |
-| `pill`   | A wider, rectangular thumb.                  |
+| Color     | Description                                                         |
+| --------- | ------------------------------------------------------------------- |
+| `primary` | The default, your brand colour.                                     |
+| `neutral` | A dark neutral, for switches that should not compete for attention. |
+
+For anything outside the scale, set `--switch-fill` on the switch or any ancestor. The hover step is derived from whatever it resolves to, so a custom colour gets a matching hover without a second value:
+
+```tsx
+<Switch className="[--switch-fill:var(--color-emerald-600)]" />
+```
+
+Each preset also sets the thumb while checked, so `neutral` gets a dark thumb in dark mode where white would vanish. A custom fill keeps the white thumb, so set `--switch-thumb` when the fill is light. Qualify it with `data-checked:`, or the dark thumb also lands on the unchecked track and disappears into it:
+
+```tsx
+<Switch className="[--switch-fill:var(--color-amber-300)] data-checked:[--switch-thumb:var(--color-amber-950)]" />
+```
+
+### Shapes
+
+Use `shape` to set the thumb's silhouette, which the track follows.
+
+<ComponentPreview component="switch" example="switch-shapes" />
+
+| Shape      | Description                                      |
+| ---------- | ------------------------------------------------ |
+| `circle`   | The default, a round thumb.                      |
+| `pill`     | A wider, rectangular thumb.                      |
+| `squircle` | A squared-off thumb, for a more mechanical look. |
+
+`squircle` uses CSS `corner-shape`. Browsers without it fall back to a rounded square.
+
+### Sizes
+
+Use `size` to set the thumb height, which drives the track dimensions.
+
+<ComponentPreview component="switch" example="switch-sizes" />
+
+| Size      | Thumb | Track height | Where it fits                     |
+| --------- | ----- | ------------ | --------------------------------- |
+| `xs`      | 14px  | 18px         | Dense rows: menu items, toolbars. |
+| `sm`      | 16px  | 20px         | Compact settings rows and cards.  |
+| `default` | 20px  | 24px         | Standalone form control.          |
+
+[Dropdown Menu](/docs/components/dropdown-menu), [Context Menu](/docs/components/context-menu) and [Menubar](/docs/components/menubar) use `xs` for their `indicator="switch"` items, so a switch inside one already matches the surrounding text.
+
+For a size the scale does not cover, set `--thumb-size`. It also takes responsive variants, which the preset cannot:
+
+```tsx
+<Switch className="sm:[--thumb-size:--spacing(3.5)]" size="sm" />
+```
+
+### Motion
+
+Use `motion` to set what the thumb does while the switch toggles.
+
+<ComponentPreview component="switch" example="switch-motion" />
+
+| Motion    | Description                                                                |
+| --------- | -------------------------------------------------------------------------- |
+| `default` | The thumb slides across at a constant width.                               |
+| `stretch` | The leading edge crosses first, so the thumb spans the track and flattens. |
+
+Hover and press behave the same either way: the thumb widens on hover, widens further and flattens on press. Both respond to a `group/switch` ancestor, so `Label className="group/switch"` makes a whole row drive the thumb. Menu items already do this.
+
+To retune, set `--switch-press-squash` (use `0` to drop the flattening), `--switch-hover-ext`, `--switch-press-ext`, or `--switch-duration`:
+
+```tsx
+<Switch className="[--switch-press-squash:0px]" motion="stretch" />
+```
 
 ### Form Integration
 
@@ -60,14 +125,49 @@ Toggle control for binary on/off states. Wraps Base UI's `Switch.Root` and `Swit
 <ApiPropsList>
 
 <ApiProp
+  name="color"
+  fullType='"primary" | "neutral"'
+  simpleType="string"
+  defaultValue='"primary"'
+>
+  Checked track colour. `className` or an ancestor can set `--switch-fill` to
+  override it for a colour outside the scale; the hover step is derived from
+  whatever the fill resolves to either way.
+</ApiProp>
+
+<ApiProp
   name="shape"
-  fullType='"circle" | "pill"'
+  fullType='"circle" | "pill" | "squircle"'
   simpleType="string"
   defaultValue='"circle"'
 >
-  Controls the aspect ratio and animation travel distance of the switch thumb. Use `"pill"` for a wider, more rectangular thumb.
+  Sets the thumb's aspect ratio, corner radius and travel distance together. The
+  track picks up the same corner treatment, so the two stay in step.
+</ApiProp>
+
+<ApiProp
+  name="size"
+  fullType='"xs" | "sm" | "default"'
+  simpleType="string"
+  defaultValue='"default"'
+>
+  Thumb height, which drives the track dimensions. Sets `--thumb-size`, so
+  `className` can still override it for a one-off or responsive size.
+</ApiProp>
+
+<ApiProp
+  name="motion"
+  fullType='"default" | "stretch"'
+  simpleType="string"
+  defaultValue='"default"'
+>
+  What the thumb does while the switch toggles. `"stretch"` sends the leading
+  edge first, so the thumb spans the track mid-toggle and flattens as it goes.
+  Hover and press are unaffected.
 </ApiProp>
 
 </ApiPropsList>
 
-Switch does not expose a `variant` prop like the other form fields. The unchecked track always uses `bg-input-elevated`, a translucent overlay that adapts to whatever substrate it sits on. This contrasts with both the thumb (white in light, page-dark in dark) AND the parent surface, so a single behavior works everywhere. See the [Surfaces](/docs/getting-started/surfaces) docs.
+Colour lives on `color` rather than a `variant` prop. The unchecked track uses `--switch-track`, a translucent overlay that adapts to whatever [surface](/docs/getting-started/surfaces) it sits on, so one colour works on a page, a Card, or a toolbar. Set `--switch-track` and `--switch-track-hover` to retune it.
+
+The 2px inset and the track, thumb and travel dimensions are snapped to whole pixels with CSS `round()`, so a `p-*` class will not change them. The checked track's hover step uses relative color syntax (`oklch(from ...)`), which every current browser supports; older ones render the hovered track transparent, so add your own hover with a `supports-*` variant if you target them. The motion needs the `@property` registrations in `switch.css`, which the component imports itself: nothing to wire up, but drop that import and the switch toggles without animating.

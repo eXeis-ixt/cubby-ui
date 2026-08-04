@@ -45,6 +45,61 @@ Card and code-block use the same `bg-muted` outer + `solidSurface(3)` inner patt
 
 Practical effect: when a Card inset is rendered inside a Dialog at level 5, the outer reads as recessed below the dialog (bg-muted is darker than the dialog substrate). Acceptable since inset variant is mostly for page-level use, but if we ever need contextual inset rendering, it would need a level-aware inner (8 sets of classes or refactor).
 
+### Menus
+
+#### Content-driven indicator column (`:has()`)
+
+`DropdownMenuCheckboxItem` and its Context Menu / Menubar / Base Drawer siblings pick the row's grid template from the `indicator` prop:
+
+```tsx
+indicator === "switch"
+  ? "grid-cols-[1fr_auto] gap-3"
+  : "grid-cols-[1fr_1rem] gap-2";
+```
+
+So the layout is welded to the flag rather than to the contents. `indicator="switch"` gets the built-in `SwitchVisual` and a template sized for it; anything else you place in the row is laid out for a 1rem checkmark.
+
+This does **not** block configuring the built-in switch — `switchShape`, `switchSize` and `switchMotion` all forward, and the switch branch's `auto` column absorbs every size those produce. The only gap is a _different_ indicator entirely: a spinner, a count badge, a coloured dot.
+
+The fix, when a use case shows up:
+
+```tsx
+"grid-cols-[1fr_1rem] gap-2",
+"has-[[data-slot=switch-visual]]:grid-cols-[1fr_auto] has-[[data-slot=switch-visual]]:gap-3",
+```
+
+Then the row adapts to whatever is inside it and `indicator="switch"` becomes shorthand rather than the only door. Costs four components plus an exported indicator primitive per menu so the composed form is writable. Purely additive to what shipped — nothing needs undoing first.
+
+#### Radio and checkbox items are visually identical
+
+Raised by the panel review and deliberately deferred. `DropdownMenuRadioItem` and a default `DropdownMenuCheckboxItem` render the same grid template and the same checkmark glyph in the same cell (dropdown-menu.tsx, and repeated in context-menu and menubar). The pre-branch radio indicator had its own filled-dot treatment, which this branch removed.
+
+In the common "View" menu shape — a `Show sidebar` toggle above a `Sort by` group — nothing signals that one group is multi-select and the other single-select, so there is no cue that picking a second radio silently clears the first.
+
+Options: give the radio indicator a distinct mark (a filled dot, or a lighter/smaller check), or document `indicator="switch"` as the expected choice for checkbox items in any menu that also holds a radio group.
+
+#### Switch track contrast in light mode is an accepted trade
+
+The unchecked light track is `oklch(0 0 0 / 8%)` (`switch.tsx`), which composites on white to `#EBEBEB` — **1.20:1** against the surface. The thumb is `bg-white`, so it measures 1.20:1 against the track too, and thumb position is what conveys on/off. WCAG 1.4.11 asks 3:1 for the parts that identify a component and its state, so this is below the bar on both counts. `data-disabled:opacity-60` takes it to ~1.11:1, and the light hover step (8% → 12%) is a change of about 0.12 contrast points, i.e. not perceptible.
+
+Dark mode is fine at 20% white (≈1.88:1 against the dark page).
+
+Kept deliberately: the value looks right as shipped, and reaching 3:1 by fill alone needs roughly 42% black, which is a visually filled track rather than a subtle one. Recorded here rather than left implicit because the comment that used to carry the reasoning was removed when the tokens moved into the component, and an undocumented trade reads as an oversight to the next reviewer.
+
+If it is ever revisited, the cheaper route than darkening the fill is restoring a boundary: the pre-branch switch carried `inset-shadow-xs`, and a `--switch-track-ring` token at ≥3:1 against both the surface and the thumb would satisfy 1.4.11 without changing the track's weight.
+
+#### Popup size caps: two accepted residuals
+
+Every popup and positioner in the popup family (Dropdown Menu, Menubar, Context Menu, Popover, Tooltip) is capped at `max-h-(--available-height)` / `max-w-(--available-width)`, and each viewport carries its own `max-h` so `overflow-y: auto` has a definite bound to work against. Two things that cap deliberately does not solve:
+
+**`min-w-[12rem]` outranks the width cap.** Used width is `max(min-width, min(max-width, width))`, so `min-width` wins unconditionally. A menu opened where less than 192px of horizontal space remains still overflows the viewport edge. Pre-existing, unchanged by the cap, and only reachable on very narrow screens or hard against an edge.
+
+**A too-wide label is now clipped rather than run off-screen.** The popup caps at `--available-width` and clips, so an item wider than the available box is cut at the boundary with no ellipsis and no horizontal scroll. Previously it ran past the viewport edge instead. Both are unreadable; neither is worse, and Popover has shipped this exact pairing since before the caps were added elsewhere.
+
+The obvious fix — `truncate` on the row's label wrapper — does not work as written. That wrapper is `display: flex` (icon + label + trailing icon), so the label is an anonymous flex item, and `text-overflow` only applies to block containers. It would give a hard cut with no ellipsis, i.e. no change. A real fix has to wrap `{children}` in a block-level element inside the row, across four components, and that changes what arbitrary consumer children are nested in. Worth doing only if long menu labels turn out to be a real use case.
+
+Note also why `max-w` is **absent** from the viewports and submenu scroll wrappers, since it reads as an omission: `height: 100%` against a parent whose specified height is `auto` computes to `auto` (CSS 2.1 §10.5), which is why each viewport needs its own `max-h`; `width: 100%` resolves against the popup's already-capped content box, so the width bound is inherited for free and a `max-w` there would be inert. The same note is on each viewport at the call site.
+
 ### Filters
 
 Deferred / removed follow-ups pulled from the initial `filters` build (`registry/default/filters/`) to keep v1 tight. None are blocking; revisit when demand shows up.
@@ -54,6 +109,36 @@ Deferred / removed follow-ups pulled from the initial `filters` build (`registry
 - **Field grouping in the add-filter picker.** The picker is a flat searchable list. For many fields, group them by category using `ComboboxGroup` / `ComboboxGroupLabel` (a `group` key on `FilterField`). Dropped for v1 since search covers discovery.
 - **Auto-remove a filter dismissed without a value.** Linear-style: if a freshly added select/multiselect filter is dismissed (popup closed) without choosing a value, drop the dangling `Select…` pill instead of leaving it. Would hook the value Combobox's `onOpenChange`/close with an "was anything picked" check. Left out to avoid surprising removals; consider behind an opt-in prop.
 - **Lower-priority PR-review leftovers** (blockers, structural pass, context split, and provider/bar split all landed): a ghost/unstyled variant on the `NumberField` primitive so the filter chip can compose it instead of raw Base UI (do it when a second consumer wants an inline borderless number input, or when the chip's copy visibly drifts from the primitive); cache `resolveOperators` per field if it ever shows in profiles.
+
+### Code hygiene
+
+#### Canonical Tailwind class sweep (repo-wide)
+
+Tailwind CSS IntelliSense flags non-canonical v4 class spellings (`suggestCanonicalClasses`). These are editor warnings only — ESLint does not catch them, so `pnpm run lint` stays green either way. Purely cosmetic; the compiled CSS is identical.
+
+Already swept: `dropdown-menu`, `context-menu`, `menubar`, `base-drawer`, `switch`. Those five are clean.
+
+What's left, and how safe each bucket is:
+
+| Pattern                                        | Fix                    | Count | Files                     | Safe to sed? |
+| ---------------------------------------------- | ---------------------- | ----- | ------------------------- | ------------ |
+| `data-[starting-style]:` etc. (bare attribute) | `data-starting-style:` | 39    | 11                        | Yes          |
+| `!text-foo` (leading important)                | `text-foo!`            | 4     | 3                         | Yes          |
+| `h-[var(--x)]` (single var)                    | `h-(--x)`              | 9     | 6                         | Yes          |
+| `shadow-[var(--a),var(--b)]` (multi-var)       | —                      | 17    | mostly `lib/elevated.tsx` | **No**       |
+
+Two things a blind find/replace gets wrong:
+
+- **Multi-var arbitrary values can't be converted.** The `(--x)` shorthand takes exactly one custom property, so `shadow-[var(--surface-shadow-3),var(--surface-rim-3)]` in `lib/elevated.tsx` has to stay bracketed. IntelliSense doesn't flag these, but a naive regex will eat them.
+- **Translate utilities are the Safari @property trap, and the obvious fix costs `cn()` overrides.** Any Tailwind translate utility, bracketed (`translate-y-[var(--x)]`) or shorthand (`translate-y-(--x)`), compiles to `--tw-translate-y: <value>; translate: var(--tw-translate-x) var(--tw-translate-y)`. WebKit drops a registered custom property's `@starting-style` value when it is a `var()` reference and falls back to the registered `initial-value: 0`, so an enter animation starts from the wrong offset. An earlier version of this note claimed the bracketed form was the safe one; it is not — both forms compile identically, confirmed against this repo's own compiler.
+
+  `drawer/drawer.tsx` has 24 of them inside `data-starting-style` / `data-ending-style` variants and is the only file affected. It was converted to direct `[translate:…]` arbitrary properties and then **reverted**, because that conversion is invisible to tailwind-merge: `twMerge("-translate-y-[calc(1.5rem)] translate-y-4")` resolves to `translate-y-4`, but `twMerge("[translate:0_calc(-1.5rem)] translate-y-4")` keeps both, and the arbitrary property wins on emission order. So `<DrawerContent className="translate-y-2">` would silently do nothing. Losing a documented `className` override is worse than a Safari-only enter-animation offset, so the utilities stay for now.
+
+  What a real fix needs: keep the value out of `--tw-translate-*` **and** stay mergeable. Most likely shape is a custom property the consumer sets (`--drawer-offset` already exists) with the component reading it, so `className` is not the override channel in the first place. `transition-panel.tsx` sets `translate` directly and documents it at the call site — it has no consumer-overridable offset, which is why the same trade does not bite there. Confirm the symptom in real Safari before spending more on it; it has never been reproduced here, only reasoned about.
+
+Also note `data-[variant=destructive]:` and other `key=value` forms are already canonical — only bare attribute-presence variants shorten.
+
+Worth doing opportunistically when a file is already being touched rather than as one big diff, since it churns lines without changing behavior.
 
 ## Done — Elevation / surface system
 
