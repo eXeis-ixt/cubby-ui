@@ -77,7 +77,7 @@ const buttonSizeVariantClasses = {
   icon: "size-10 sm:size-9 text-sm",
   icon_xs:
     "size-8 sm:size-7 rounded-md text-xs [&_svg:not([class*='size-'])]:size-3.5",
-  icon_sm: "size-9 sm:size-8 text-[13px]",
+  icon_sm: "size-9 sm:size-8 text-sm",
   icon_lg: "size-11 sm:size-10 text-base [&_svg:not([class*='size-'])]:size-5",
 };
 
