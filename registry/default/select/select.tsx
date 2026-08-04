@@ -81,11 +81,11 @@ const selectTriggerVariants = cva(
           "border-transparent bg-transparent text-muted-foreground hover:bg-surface-hover hover:text-foreground data-popup-open:bg-surface-hover data-popup-open:text-foreground group-hover/select-trigger:[&_svg:not([class*='text-'])]:text-foreground",
       },
       size: {
-        default: "h-10 px-3 py-2 sm:h-9",
+        default: "h-10 px-3.5 pr-2.5 py-2 sm:h-9",
         // Compact trigger. Note: tighter than the Button sm size (px-3), so
         // ghost triggers in toolbars pair best with icon-size ghost buttons,
         // which carry no horizontal padding.
-        sm: "h-9 px-2 py-1.5 sm:h-8",
+        sm: "h-9 px-3 pr-2 py-1.5 sm:h-8",
       },
     },
     defaultVariants: {

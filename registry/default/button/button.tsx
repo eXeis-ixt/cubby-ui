@@ -72,7 +72,7 @@ const buttonVariantClasses = {
 const buttonSizeVariantClasses = {
   default: "h-10 sm:h-9 px-3.5 gap-1.5 text-sm",
   xs: "h-8 sm:h-7 px-2.5 gap-1 text-xs rounded-md [&_svg:not([class*='size-'])]:size-3.5",
-  sm: "h-9 sm:h-8 px-3 gap-1.5 text-[13px]",
+  sm: "h-9 sm:h-8 px-3 gap-1.5 text-sm",
   lg: "h-11 sm:h-10 px-3.5 gap-1.5 text-base [&_svg:not([class*='size-'])]:size-5",
   icon: "size-10 sm:size-9 text-sm",
   icon_xs:
