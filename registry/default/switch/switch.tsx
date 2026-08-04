@@ -38,7 +38,7 @@ const switchVariants = cva(
     // either state.
     "[--switch-hover-ext:round(calc(var(--thumb-h)*0.125),1px)]",
     "[--switch-press-ext:round(calc(var(--thumb-h)*0.25),1px)]",
-    "[--switch-press-squash:4px]",
+    "[--switch-press-squash:round(calc(var(--thumb-h)*0.25),1px)]",
     // --switch-p is the whole toggle: every thumb declaration is a calc() of
     // it, which is how one mechanism serves both motions.
     "[--switch-p:0] data-checked:[--switch-p:1]",
