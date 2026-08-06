@@ -4,12 +4,10 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Select as BaseSelect } from "@base-ui/react/select";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  UnfoldMoreIcon,
-  Tick02Icon,
-  ArrowDown01Icon,
-  ArrowUp01Icon,
-} from "@hugeicons/core-free-icons";
+import UnfoldMoreIcon from "@hugeicons/core-free-icons/UnfoldMoreIcon";
+import Tick02Icon from "@hugeicons/core-free-icons/Tick02Icon";
+import ArrowDown01Icon from "@hugeicons/core-free-icons/ArrowDown01Icon";
+import ArrowUp01Icon from "@hugeicons/core-free-icons/ArrowUp01Icon";
 
 import { cn } from "@/lib/utils";
 import {
@@ -208,7 +206,11 @@ function SelectContent({
             // List the scroller via an inline `max-height: 100%`, which only
             // resolves against a definite parent height — pin the content
             // wrapper to the viewport so the List clips and scrolls itself.
-            contentClassName="in-data-[side=none]:h-full"
+            // Withheld under nativeScroll, which has no content wrapper to pin
+            // and warns about the prop it cannot honour.
+            contentClassName={
+              nativeScroll ? undefined : "in-data-[side=none]:h-full"
+            }
           >
             <BaseSelect.List
               data-slot="select-list"

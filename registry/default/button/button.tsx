@@ -4,7 +4,14 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button as BaseButton } from "@base-ui/react/button";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Loading03Icon } from "@hugeicons/core-free-icons";
+// Subpath, not the package root, here and in every other component that draws
+// an icon. `@hugeicons/core-free-icons`'s ESM index is a single 6 MB file of
+// inline declarations closed by one `export {}`, not a re-export barrel, so the
+// `optimizePackageImports` entry in next.config.mjs has nothing to trace and
+// leaves the import alone. Tree shaking still keeps the unused icons out of the
+// bundle; the cost this avoids is parsing all 6 MB, which an installed copy of
+// this component would otherwise impose on the consumer's build too.
+import Loading03Icon from "@hugeicons/core-free-icons/Loading03Icon";
 import { cn } from "@/lib/utils";
 
 // The button's fill and border render on a ::before pseudo-element that
@@ -196,9 +203,15 @@ function Button({
                 strokeWidth={2}
               />
             </span>
-            <span role="status" className="sr-only">
-              Loading
-            </span>
+            {/* No sr-only live region here, deliberately. `sr-only` clips
+                rather than hides, so its text joins name-from-content and the
+                button would rename itself mid-request ("Save" -> "Save
+                Loading"). And it would not announce anyway: `role="button"` is
+                Children Presentational, and a region that mounts already
+                holding its text has not changed. `aria-busy` and `disabled`
+                above are the signals that work. Callers who want words swap
+                their own label, or render their own live region OUTSIDE the
+                button — see CopyButton, which does exactly that. */}
           </>
         ) : (
           content

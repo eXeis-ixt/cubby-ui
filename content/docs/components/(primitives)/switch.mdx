@@ -96,12 +96,22 @@ Use `motion` to set what the thumb does while the switch toggles.
 | `default` | The thumb slides across at a constant width.                               |
 | `stretch` | The leading edge crosses first, so the thumb spans the track and flattens. |
 
-Hover and press behave the same either way: the thumb widens on hover, widens further and flattens on press. Both respond to a `group/switch` ancestor, so `Label className="group/switch"` makes a whole row drive the thumb. Menu items already do this.
+Hover and press behave the same either way: the thumb widens on hover, and widens further on press. Both respond to a `group/switch` ancestor, so `Label className="group/switch"` makes a whole row drive the thumb. Menu items already do this. The flattening that comes with a press is separate, and `squash` below controls it.
 
-To retune, set `--switch-press-squash` (use `0` to drop the flattening), `--switch-hover-ext`, `--switch-press-ext`, or `--switch-duration`:
+### Squash
+
+`squash` controls the flattening, and it is the one option that reaches both motions through different triggers. Under `default` the thumb flattens while pressed. Under `stretch` it flattens mid-travel, from how far it has spread, with no press involved. Turn it off and the thumb keeps a constant height in both.
 
 ```tsx
-<Switch className="[--switch-press-squash:0px]" motion="stretch" />
+<Switch motion="stretch" squash={false} />
+```
+
+`SwitchVisual` flips this default to `false`, since a menu row or any other host that owns the press leaves the indicator itself inert. Pass `squash` to opt back in.
+
+To retune the depth rather than switch it off, set `--switch-press-squash`. That, `--switch-hover-ext`, `--switch-press-ext` and `--switch-duration` all accept variants, so a value can differ by breakpoint:
+
+```tsx
+<Switch className="sm:[--switch-press-squash:0px]" motion="stretch" />
 ```
 
 ### Form Integration
@@ -164,6 +174,19 @@ Toggle control for binary on/off states. Wraps Base UI's `Switch.Root` and `Swit
   What the thumb does while the switch toggles. `"stretch"` sends the leading
   edge first, so the thumb spans the track mid-toggle and flattens as it goes.
   Hover and press are unaffected.
+</ApiProp>
+
+<ApiProp
+  name="squash"
+  fullType="boolean"
+  simpleType="boolean"
+  defaultValue="true"
+>
+  Whether the thumb flattens. Under `"default"` motion that happens on press;
+  under `"stretch"` it happens mid-travel, from how far the thumb has spread.
+  Off keeps the height constant in both. Sets `--switch-press-squash`, so
+  `className` can still retune the depth or vary it by breakpoint.
+  `SwitchVisual` defaults this to `false`.
 </ApiProp>
 
 </ApiPropsList>

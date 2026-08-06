@@ -9,7 +9,7 @@ import type { ReactNode } from "react";
 import { Collapsible } from "@base-ui/react/collapsible";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import ArrowRight01Icon from "@hugeicons/core-free-icons/ArrowRight01Icon";
 interface ApiPropProps {
   name: string;
   fullType: string;

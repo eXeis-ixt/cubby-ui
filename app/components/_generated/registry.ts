@@ -1125,6 +1125,7 @@ export const componentMetadata = {
       "@cubby-ui/button"
     ],
     "dependencies": [
+      "class-variance-authority",
       "@hugeicons/react",
       "@hugeicons/core-free-icons"
     ],

@@ -5,7 +5,7 @@ import * as ResizablePrimitive from "react-resizable-panels";
 import { cn } from "@/lib/utils";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { DragDropVerticalIcon } from "@hugeicons/core-free-icons";
+import DragDropVerticalIcon from "@hugeicons/core-free-icons/DragDropVerticalIcon";
 function ResizablePanelGroup({
   className,
   ...props
@@ -39,14 +39,18 @@ function ResizableHandle({
     <ResizablePrimitive.PanelResizeHandle
       data-slot="resizable-handle"
       className={cn(
-        "bg-border/60 focus-visible:ring-ring/30 relative flex w-px items-center justify-center after:absolute after:inset-y-0 after:left-1/2 after:w-2 after:-translate-x-1/2 hover:after:bg-accent/50 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-offset-1 data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-2 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:translate-x-0 data-[panel-group-direction=vertical]:after:-translate-y-1/2 [&[data-panel-group-direction=vertical]>div]:rotate-90",
+        "bg-border/60 focus-visible:ring-ring/30 hover:after:bg-accent/50 relative flex w-px items-center justify-center transition-colors duration-200 after:absolute after:inset-y-0 after:left-1/2 after:w-2 after:-translate-x-1/2 focus-visible:ring-2 focus-visible:ring-offset-1 data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-2 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:translate-x-0 data-[panel-group-direction=vertical]:after:-translate-y-1/2 [&[data-panel-group-direction=vertical]>div]:rotate-90",
         className,
       )}
       {...props}
     >
       {withHandle && (
         <div className="bg-muted border-border/60 z-10 flex h-5 w-4 items-center justify-center rounded-md border shadow-[0_1px_3px_0_oklch(0.18_0_0_/_0.08)]">
-          <HugeiconsIcon icon={DragDropVerticalIcon} size={10}  strokeWidth={2} />
+          <HugeiconsIcon
+            icon={DragDropVerticalIcon}
+            size={10}
+            strokeWidth={2}
+          />
         </div>
       )}
     </ResizablePrimitive.PanelResizeHandle>

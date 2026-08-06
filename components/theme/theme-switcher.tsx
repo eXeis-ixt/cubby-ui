@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { Button } from "@/registry/default/button/button";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ComputerIcon, Moon02Icon, Sun01Icon } from "@hugeicons/core-free-icons";
+import ComputerIcon from "@hugeicons/core-free-icons/ComputerIcon";
+import Moon02Icon from "@hugeicons/core-free-icons/Moon02Icon";
+import Sun01Icon from "@hugeicons/core-free-icons/Sun01Icon";
 export function ThemeSwitcher() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -43,14 +45,20 @@ export function ThemeSwitcher() {
 
   const getIcon = () => {
     if (theme === "system") {
-      return <HugeiconsIcon icon={ComputerIcon} className="h-4 w-4"  strokeWidth={2} />;
+      return (
+        <HugeiconsIcon
+          icon={ComputerIcon}
+          className="h-4 w-4"
+          strokeWidth={2}
+        />
+      );
     }
     // Use resolvedTheme for system theme to show actual icon
     const currentTheme = theme === "system" ? resolvedTheme : theme;
     return currentTheme === "dark" ? (
-      <HugeiconsIcon icon={Moon02Icon} className="h-4 w-4"  strokeWidth={2} />
+      <HugeiconsIcon icon={Moon02Icon} className="h-4 w-4" strokeWidth={2} />
     ) : (
-      <HugeiconsIcon icon={Sun01Icon} className="h-4 w-4"  strokeWidth={2} />
+      <HugeiconsIcon icon={Sun01Icon} className="h-4 w-4" strokeWidth={2} />
     );
   };
 

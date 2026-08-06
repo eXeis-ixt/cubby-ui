@@ -10,13 +10,11 @@ import {
 } from "@/registry/default/dropdown-menu/dropdown-menu";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowDown01Icon,
-  ChatIcon,
-  Copy01Icon,
-  LinkSquare02Icon,
-  Tick02Icon,
-} from "@hugeicons/core-free-icons";
+import ArrowDown01Icon from "@hugeicons/core-free-icons/ArrowDown01Icon";
+import ChatIcon from "@hugeicons/core-free-icons/ChatIcon";
+import Copy01Icon from "@hugeicons/core-free-icons/Copy01Icon";
+import LinkSquare02Icon from "@hugeicons/core-free-icons/LinkSquare02Icon";
+import Tick02Icon from "@hugeicons/core-free-icons/Tick02Icon";
 const cache = new Map<string, string>();
 
 export function LLMCopyButton({

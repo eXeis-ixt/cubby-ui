@@ -1,9 +1,12 @@
 import * as React from "react";
+import { type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "@/registry/default/button/button";
+import { buttonVariants } from "@/registry/default/button/button";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft01Icon, ArrowRight01Icon, MoreHorizontalIcon } from "@hugeicons/core-free-icons";
+import ArrowLeft01Icon from "@hugeicons/core-free-icons/ArrowLeft01Icon";
+import ArrowRight01Icon from "@hugeicons/core-free-icons/ArrowRight01Icon";
+import MoreHorizontalIcon from "@hugeicons/core-free-icons/MoreHorizontalIcon";
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
@@ -36,7 +39,10 @@ function PaginationItem({ ...props }: React.ComponentProps<"li">) {
 type PaginationLinkProps = {
   isActive?: boolean;
   isDisabled?: boolean;
-} & Pick<React.ComponentProps<typeof Button>, "size"> &
+} & Pick<
+  VariantProps<typeof buttonVariants>,
+  "size" | "iconLeft" | "iconRight"
+> &
   React.ComponentProps<"a">;
 
 // Pagination links are real anchors styled with the flat `buttonVariants`
@@ -48,6 +54,8 @@ function PaginationLink({
   isActive,
   isDisabled,
   size = "icon",
+  iconLeft,
+  iconRight,
   ...props
 }: PaginationLinkProps) {
   return (
@@ -61,6 +69,8 @@ function PaginationLink({
         buttonVariants({
           variant: isActive ? "outline" : "ghost",
           size,
+          iconLeft,
+          iconRight,
         }),
         isDisabled && "pointer-events-none opacity-60",
         className,
@@ -78,9 +88,10 @@ function PaginationPrevious({
     <PaginationLink
       aria-label="Go to previous page"
       size="default"
-      // pl-2.5 mirrors the Button's leading-icon optical padding, which the
-      // flat recipe has no compound variants for.
-      className={cn("gap-1.5 pl-2.5", className)}
+      // The recipe's own leading-icon compound supplies the optical padding —
+      // don't restate it as a literal, or the two drift the moment `size` does.
+      iconLeft
+      className={cn("gap-1.5", className)}
       {...props}
     >
       <HugeiconsIcon icon={ArrowLeft01Icon} size={16} strokeWidth={2} />
@@ -97,7 +108,8 @@ function PaginationNext({
     <PaginationLink
       aria-label="Go to next page"
       size="default"
-      className={cn("gap-1.5 pr-2.5", className)}
+      iconRight
+      className={cn("gap-1.5", className)}
       {...props}
     >
       <span>Next</span>
@@ -117,7 +129,7 @@ function PaginationEllipsis({
       className={cn("flex size-10 items-center justify-center", className)}
       {...props}
     >
-      <HugeiconsIcon icon={MoreHorizontalIcon} size={16}  strokeWidth={2} />
+      <HugeiconsIcon icon={MoreHorizontalIcon} size={16} strokeWidth={2} />
       <span className="sr-only">More pages</span>
     </span>
   );

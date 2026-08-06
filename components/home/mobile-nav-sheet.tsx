@@ -3,10 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  GithubIcon,
-  Search01Icon,
-} from "@hugeicons/core-free-icons";
+import GithubIcon from "@hugeicons/core-free-icons/GithubIcon";
+import Search01Icon from "@hugeicons/core-free-icons/Search01Icon";
 import { useSearchContext } from "fumadocs-ui/contexts/search";
 import {
   Sheet,
@@ -79,7 +77,11 @@ export function MobileNavSheet({ trigger }: MobileNavSheetProps) {
                 />
               }
               render={
-                <a href={GITHUB_URL} target="_blank" rel="noreferrer noopener" />
+                <a
+                  href={GITHUB_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                />
               }
               nativeButton={false}
             >
