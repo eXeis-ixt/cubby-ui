@@ -63,6 +63,17 @@ Place form elements inside `DialogBody` and close on submit.
 
 <ComponentPreview component="dialog" example="dialog-scroll" />
 
+### Outside Scroll
+
+Set `scroll="outside"` on `DialogContent` to let the popup grow past the viewport and scroll the area around it instead.
+
+| Value       | Behavior                                                                              |
+| ----------- | ------------------------------------------------------------------------------------- |
+| `"inside"`  | Popup is capped to the viewport. `DialogBody` scrolls, header and footer stay pinned. |
+| `"outside"` | Popup grows past the viewport. The area around it scrolls, so the whole card moves.   |
+
+<ComponentPreview component="dialog" example="dialog-outside-scroll" />
+
 ### No Close Button
 
 Set `showCloseButton={false}` on `DialogContent` to hide the default close button.
@@ -98,6 +109,22 @@ Pass `modal={false}` for a floating dialog that keeps the page interactive. The 
 Place elements visually outside the popup card while keeping them inside the popup component for accessibility (tab order, screen reader support). The popup uses `pointer-events: none` so backdrop clicks work, while inner content uses `pointer-events: auto`.
 
 <ComponentPreview component="dialog" example="dialog-elements-outside" />
+
+### Persistent Close Button
+
+Combine `scroll="outside"` with the transparent frame above to keep the close button in the corner of the screen while the card scrolls past it.
+
+<ComponentPreview component="dialog" example="dialog-persistent-close" />
+
+The button stays inside `DialogContent` so it remains in the focus trap, which puts it inside the scroll area too. `sticky` is what pins it there; `fixed` would resolve against the popup, not the viewport, because the popup carries a transform for nested dialogs. It needs a gutter to sit in, so below `sm` it falls back into the card and scrolls away with the header.
+
+## Accessibility
+
+Base UI handles the dialog role, labelling, focus trapping, and Escape. One thing is layered on top:
+
+`scroll="outside"` moves initial focus to the popup itself rather than the first focusable child. Without it the browser scrolls whatever it focuses into view, so a tall dialog can open part-way down its own content. The popup's focus ring is suppressed in this mode because focus lands there on open rather than by user action. Pass `initialFocus` to choose a different target.
+
+The close button sits at the top of the card, so under `scroll="outside"` it scrolls out of view on a tall dialog. Escape still closes it. Give a long dialog a footer close action, or see [Persistent Close Button](#persistent-close-button) for one that stays on screen.
 
 ## API Reference
 
@@ -161,12 +188,12 @@ Root component. Forwards all props to Base UI's `Dialog.Root`, with modified def
   simpleType="boolean"
   defaultValue="true"
 >
-  Behavior is unchanged from Base UI, but when set to `false` or
-  `"trap-focus"`, `DialogContent` skips the backdrop and wires
-  `pointer-events` so the page remains interactive. Also changes the default
-  of `disablePointerDismissal` to `true` so clicks on the page don't close
-  the dialog. Pass `disablePointerDismissal={false}` explicitly to opt back
-  into outside-click dismissal.
+  Behavior is unchanged from Base UI, but when set to `false` or `"trap-focus"`,
+  `DialogContent` skips the backdrop and wires `pointer-events` so the page
+  remains interactive. Also changes the default of `disablePointerDismissal` to
+  `true` so clicks on the page don't close the dialog. Pass
+  `disablePointerDismissal={false}` explicitly to opt back into outside-click
+  dismissal.
 </ApiProp>
 
 </ApiPropsList>
@@ -187,12 +214,39 @@ Dialog container with centered positioning. Composes `Dialog.Portal`, `Dialog.Vi
   to the footer that extends to the dialog edges.
 </ApiProp>
 
-<ApiProp name="level" fullType="1 | 2 | 3 | 4 | 5 | 6 | 7 | 8" defaultValue="5">
-  Surface elevation level. See the [Surfaces](/docs/getting-started/surfaces) docs. Dialogs default to `5`, comfortably above popovers and dropdowns at level 3.
+<ApiProp name="scroll" fullType='"inside" | "outside"' defaultValue='"inside"'>
+  Where overflow scrolls. `inside` caps the popup to the viewport and scrolls
+  `DialogBody`, keeping the header and footer pinned. `outside` lets the popup
+  grow past the viewport and scrolls the area around it, so the whole card
+  moves; `DialogBody` renders without its inner scroller and its ScrollArea
+  props have no effect. Treat as fixed for the dialog's lifetime: changing it
+  while open remounts the popup. Custom prop not available in Base UI.
 </ApiProp>
 
-<ApiProp name="shadowLevel" fullType="1 | 2 | 3 | 4 | 5 | 6 | 7 | 8" defaultValue="5">
-  Shadow weight. Defaults to `5` for the typical dialog-sized element (~400 to 800px).
+<ApiProp
+  name="initialFocus"
+  fullType="boolean | RefObject | ((openType) => boolean | HTMLElement | null | void)"
+  defaultValue='Base UI default, or the popup under scroll="outside"'
+>
+  Base UI prop, with a modified default. Under `scroll="outside"` it defaults to
+  the popup element instead of the first focusable child, so opening a tall
+  dialog does not scroll straight past the header. Pass your own value to
+  override.
+</ApiProp>
+
+<ApiProp name="level" fullType="1 | 2 | 3 | 4 | 5 | 6 | 7 | 8" defaultValue="5">
+  Surface elevation level. See the [Surfaces](/docs/getting-started/surfaces)
+  docs. Dialogs default to `5`, comfortably above popovers and dropdowns at
+  level 3.
+</ApiProp>
+
+<ApiProp
+  name="shadowLevel"
+  fullType="1 | 2 | 3 | 4 | 5 | 6 | 7 | 8"
+  defaultValue="5"
+>
+  Shadow weight. Defaults to `5` for the typical dialog-sized element (~400 to
+  800px).
 </ApiProp>
 
 </ApiPropsList>
@@ -211,6 +265,9 @@ Scrollable content area within the dialog.
   Use native browser scrolling instead of Base UI's ScrollArea. Fade edges still
   work using CSS scroll-driven animations (Chrome 115+, with static fallback).
   Note: `persistScrollbar` is not supported with `nativeScroll`.
+
+Has no effect when `DialogContent` uses `scroll="outside"`.
+
 </ApiProp>
 
 <ApiProp
@@ -219,6 +276,9 @@ Scrollable content area within the dialog.
   defaultValue="true"
 >
   Controls the fade effect on scroll edges. See [ScrollArea](/docs/components/scroll-area#custom-props) for all options.
+
+Has no effect when `DialogContent` uses `scroll="outside"`.
+
 </ApiProp>
 
 <ApiProp
@@ -227,6 +287,9 @@ Scrollable content area within the dialog.
   defaultValue="false"
 >
   Reserves space for the scrollbar when content overflows, preventing layout shift.
+
+Has no effect when `DialogContent` uses `scroll="outside"`.
+
 </ApiProp>
 
 <ApiProp
@@ -235,6 +298,9 @@ Scrollable content area within the dialog.
   defaultValue="false"
 >
   Always show the scrollbar instead of fading it in on hover or scroll.
+
+Has no effect when `DialogContent` uses `scroll="outside"`.
+
 </ApiProp>
 
 <ApiProp
@@ -243,6 +309,9 @@ Scrollable content area within the dialog.
   defaultValue="false"
 >
   Hides the scrollbar while keeping scroll functionality.
+
+Has no effect when `DialogContent` uses `scroll="outside"`.
+
 </ApiProp>
 
 </ApiPropsList>
